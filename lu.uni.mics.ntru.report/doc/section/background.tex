@@ -1,10 +1,19 @@
 \section{Background}
 
-This sections presents the concepts, methodologies and technologies used to produce the implementation and the test evaluation.
+This sections presents the concepts, methodologies and technologies used to produce the implementation and the performance evaluation.
 
-\subsection{NTRU - Closest latice vector problem}
-
-The NTRU algorithm is based on the closest latice vector problem
+\subsection{NTRU}
+NTRU algorithm which is the abbreviation for $N-th$ degree truncated polynomial ring, is the group of lattice based public key encryption schemes.\\
+Such algorithm relies on the hardness of the \textit{Closest Vector Problem} which in turns is a generalisation of the \textit{Shortest Vector Problem}.\\
+This group of algorithm has couple of advantages the well known RSA algorithm. First, the main operation of NTRU relies on the multiplication of polynomials with constant degree ($e.g.$ 438 for 128 bit security) on small integer. Which in turns is much less costly that operation for the same level of security using RSA algorithm that relies on modular exponentiation (for 128 bit security level, operation performed on 3072-bit integers). Second, NTRU is more robust with regards to quantum computing than classic RSA.\\
+Furthermore RSA operation are very costly in terms of resource consumption which make it very unlikely to be implemented on resource limited hardware. Thanks to the possibility of efficiency increase of the NTRU algorithm, an implementation of such high security scheme on small and resource critical devices can be considered.
 \subsection{Mask Generating Function}
-\subsection{8 bit AVR controller}
-\subsection{Performance testing}
+Our work will be focused on one of the high resource consuming part of the execution of NTRU algorithm which is the mask generating function (MGF). This MGF is used to ensure that a single bit of the output is generated using multiple bit of the input and that and that a good random distribution is output after encryption.\\
+
+\subsection{IoT \& Performance Evaluation}
+One of the main motivation for the optimisation of high-security level crypto-system is the need of such high security for on low powered small device that have spread out on our networks for the previous 10 years. In fact those Internet of Things (IoT) devices already started to take a important part of information gathering as well as processing.\\
+Those devices take the form of very small controller often equipped with low calculation power coupled with limited battery resource.\\
+Recent news have shown that the security in communication on those devices was very low and sometimes not even considered. Because of the difficulty of combining correct security level with limitation on hardware that such device impose.\\
+Thus, progress in the area of efficient implementation of NTRU algorithm for low-power consumption could be a major advancement on the security of IoT devices.
+\\A good performance testing scheme could be a first estimation of the power consumption (which will be approximated with clock cycle) of the optimised time consuming operation ($e.g.$ mask generating function) over existing RSA high resource consuming operation. Such benchmark will give us material to argue on the possibility of optimisation of power consumption as well as  enhancement of security level for such device.
+
