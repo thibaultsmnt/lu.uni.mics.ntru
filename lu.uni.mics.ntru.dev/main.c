@@ -47,10 +47,10 @@ int16_t mgf1(uint8_t seed[], uint32_t min_calls_mask, uint8_t N){
     // Hash from 0 to min calls =>  min calls + 1 space needed
     uint8_t Z[36];
 
-    sha256_hash(Z, seed, 65);
+    sha256_hash(Z, seed, 101);
 
     // WARNING: may overflow
-    uint8_t bufferSize = (uint8_t) (min_calls_mask+1 * 32);
+    uint8_t bufferSize = (uint8_t) (min_calls_mask * 32);
     uint8_t *buffer = malloc(bufferSize * sizeof(uint8_t));
 
 
@@ -64,7 +64,6 @@ int16_t mgf1(uint8_t seed[], uint32_t min_calls_mask, uint8_t N){
 
         // Generate hash and add it to buffer
         sha256_hash((buffer + i*32), Z, 36);
-        print(Z, 36);
 
         // Increment ctr
         if (++ctr[3] == 0) {
@@ -75,6 +74,8 @@ int16_t mgf1(uint8_t seed[], uint32_t min_calls_mask, uint8_t N){
             }
         }
     }
+
+    print(buffer, bufferSize);
 
 
 
