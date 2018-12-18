@@ -5,7 +5,21 @@ This sections presents the concepts, methodologies and technologies used to prod
 
 \subsection{NTRU}
 NTRU algorithm which is the abbreviation for $N-th$ degree truncated polynomial ring, is the group of lattice based public key encryption schemes.\\
-Such algorithm relies on the hardness of the \textit{Closest Vector Problem}\cite{micciancio_closest_2003} which in turns is a generalisation of the \textit{Shortest Vector Problem}.\\
+Such algorithm relies on the hardness of the \textit{Closest Vector Problem}\cite{micciancio_closest_2003} which in turns is a generalisation of the \textit{Shortest Vector Problem}.
+\subsubsection{Algebraic structure and operation}
+NTRU crypto-system operation is using polynomial of degree $N-1$ with Integer coefficient. Elements are on the form $$F = f_0+f_1X+f_2X^2+... +f_{N-1}X^{N-1} $$  We will denote by $R$ the set of all those polynomials.\\
+Let $a,b \in R$  
+$$a+b = (a_0+b_0) + (a_1+b_1)X+...+(a_{N-1}+b_{N-1})X^{N-1}$$
+$$ a\cdot b = c_0+c_1X+c_2X^2+...+c_{N-1}X^{N-1}, $$
+We have that $+,\cdot $ are defined in $R$. \\Thus $R$ defines a ring , such ring is called \textit{Truncated polynomial Ring} and is isomorphic to the quotient ring $\mathbb{Z}{[X]/(X^N-1)}$.\\
+An important operation that is used by \texttt{NTRUEncrypt} during encryption and decryption is the modular arithmetic of those polynomials.\\
+Such operation is defined as the reduction of the coefficient of a polynomial $a$ by an integer $q$.
+The last notion that will be used in the \texttt{NTRUEncrypt} operation is the inverse modulo $q$ of an element in the truncated polynomial ring.\\ This element denoted by $a_q$ is defined by : $$ a\cdot a_q = 1 \textnormal{ mod q} $$
+\\ \\
+To be used, the NTRU crypto-system should be set up with a set of parameters $(N,p,q)$ which defines the underlying algebraic structure. With $N$ the \textit{degree parameter} , $p$ and $q$ two integers with $q >> p$ and gcd($p$,$q$)=1.\\ Currently a value $N=439$ allows to ensure 128 bits of security \cite{noauthor_open_2018}. The degree parameter $N$ will determine the quotient ring $R=\mathbb{Z}{[X]/(X^N-1)}$.
+\\ //PUBLIC KEY GENERATION?
+\subsubsection{Encryption}
+\subsubsection{Decryption}
 
 This group of algorithm has couple of advantages over the well known RSA algorithm. First, the main operation of NTRU relies on the multiplication of polynomials with constant degree ($e.g.$ 438 for 128 bit security) on small integer. Which in turns is much less costly that operation for the same level of security using RSA algorithm that relies on modular exponentiation (for 128 bit security level, operation performed on 3072-bit integers). Second, NTRU is more robust with regards to quantum computing than RSA.\\
 Furthermore RSA operation are very costly in terms of resource consumption which make it very unlikely to be implemented on resource limited hardware. Thanks to the possibility of efficiency increase of the NTRU algorithm, an implementation of such high security scheme on small and resource critical devices can be considered.
