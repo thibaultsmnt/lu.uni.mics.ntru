@@ -14,12 +14,38 @@ $$ a\cdot b = c_0+c_1X+c_2X^2+...+c_{N-1}X^{N-1}, $$
 We have that $+,\cdot $ are defined in $R$. \\Thus $R$ defines a ring , such ring is called \textit{Truncated polynomial Ring} and is isomorphic to the quotient ring $\mathbb{Z}{[X]/(X^N-1)}$.\\
 An important operation that is used by \texttt{NTRUEncrypt} during encryption and decryption is the modular arithmetic of those polynomials.\\
 Such operation is defined as the reduction of the coefficient of a polynomial $a$ by an integer $q$.
-The last notion that will be used in the \texttt{NTRUEncrypt} operation is the inverse modulo $q$ of an element in the truncated polynomial ring.\\ This element denoted by $a_q$ is defined by : $$ a\cdot a_q = 1 \textnormal{ mod q} $$
+Another notion that will be used in the \texttt{NTRUEncrypt} operation is the inverse modulo $q$ of an element in the truncated polynomial ring.\\ This element denoted by $a_q$ is defined by : $$ a\cdot a_q = 1 \textnormal{ mod q} $$
 \\ \\
 To be used, the NTRU crypto-system should be set up with a set of parameters $(N,p,q)$ which defines the underlying algebraic structure. With $N$ the \textit{degree parameter} , $p$ and $q$ two integers with $q >> p$ and gcd($p$,$q$)=1.\\ Currently a value $N=439$ allows to ensure 128 bits of security \cite{noauthor_open_2018}. The degree parameter $N$ will determine the quotient ring $R=\mathbb{Z}{[X]/(X^N-1)}$.
-\\ //PUBLIC KEY GENERATION?
+
+\subsubsection{Public key creation}
+A person that is willing to create a private/public key pair for use with \texttt{NTRUEncrypt} will follow the following procedure.
+\begin{enumerate}
+	\item Randomly choose 2 polynomials $f,g \in R$. 
+	\item Compute the inverse $f_q$ of $f$ (modulo $q$) and $f_p$ of $f$ (modulo $p$) \footnote{The inverse exists such that $f_q * f = 1 $ mod $q$}. If the inverses don't exists then go to step 1.
+	\item Compute $h = f_q *g$ mod $q$. \footnote{The operation * refers to the multiplication in $R$ and is defined by the cyclic convolution product.}
+	\item The output $h$ is the public key and $f,f_p$ are the private parameters.
+\end{enumerate} 
 \subsubsection{Encryption}
+The encryption takes the parameters set ($N,q,p$) the message $M$ and the public key $h$ as input. As for other public key encryption scheme, \texttt{NTRUEncrypt} requires additional padding and formatting to avoid certain attack and break determinism of such algorithm. (Such utility function will be emphasised latter).\\
+To encrypt a message $M$ a person will have to go through the following steps:
+\begin{enumerate}
+	\item Translate $M$ into a polynomial $m \in R$. \footnote{Please note that the resulting $m$ represent the padded and formatted message $M$}
+	\item Generate a random blinding polynomial $r \in R$.
+	\item Compute $c=ph*r+m$ mod $q$
+	\item The output $c$ is the cipher text
+\end{enumerate}
+
 \subsubsection{Decryption}
+The decryption will be executed by the public owner, hence the parameters ($N,q,p$), the private parameters $f,f_p$ and finally the cipher text $c$ are the input.\\
+To recover the original message $M$ the person will have to go through the following steps :
+\begin{enumerate}
+	\item Compute $a=f*c$ mod $q$
+	\item Compute $b=a$ mod $p$. (Reduce each coefficient of $a$ mod $p$).
+	\item Compute $m=fp*b$ mod $p$.
+	\item Output $m$ is the decrypted polynomial representing the message $M$.
+\end{enumerate}
+\\
 
 This group of algorithm has couple of advantages over the well known RSA algorithm. First, the main operation of NTRU relies on the multiplication of polynomials with constant degree ($e.g.$ 438 for 128 bit security) on small integer. Which in turns is much less costly that operation for the same level of security using RSA algorithm that relies on modular exponentiation (for 128 bit security level, operation performed on 3072-bit integers). Second, NTRU is more robust with regards to quantum computing than RSA.\\
 Furthermore RSA operation are very costly in terms of resource consumption which make it very unlikely to be implemented on resource limited hardware. Thanks to the possibility of efficiency increase of the NTRU algorithm, an implementation of such high security scheme on small and resource critical devices can be considered.
