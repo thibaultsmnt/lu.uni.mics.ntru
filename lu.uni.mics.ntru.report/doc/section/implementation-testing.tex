@@ -1,7 +1,7 @@
 \section{Implementation \& Testing}
 
-This section presents the motivations to implement the MGF-1 function, its implementation and the testing of the the implementation.
-
+This section presents the motivations to implement the MGF-1 function, its implementation and the testing of the implementation.\\\\ 
+As described in the background section the part that we have worked on concerns the utility function of mask generating function. Again this function is used to apply some padding during the encryption to improve security.
 \begin{table}[h]
 \centering
 
@@ -22,7 +22,9 @@ Decryption & 1757 && 1560 & 88.8\% & & 104 &5.9\% && 93 & 5.3\%  \\
 \label{tab:cost-breakdown}
 \end{table}
 
-The table \ref{tab:cost-breakdown} shows that the hash function takes up to 15.9\% of the total computation cycle number. It is the second most expensive operation after the polynomial arithmetics (that takes up to 93.6\% of the total cycle number). Plus, the rest is negligible as it takes only up to 6.7\%. Hence the hash function $MGF-1$ is a good candidate for performance analysis in order to improve the global computation time by reducing the cycle number. Then, the task to realise was the implementation and optimisation of the $MGF-1$ function in $C$ according to the description of J. Schanck \cite{schanck_practical_2015}. 
+The table \ref{tab:cost-breakdown} described the clock cycles needed for different part of the algorithm depending on the operation used (Polynomial arithmetics, hash function, others). \\
+ It clearly emphasis the fact that the hash function takes up to 15.9\% of the total computation cycle number. It is the second most expensive operation after the polynomial arithmetics (that takes up to 77.4\% of the total cycle number). Plus, the rest is negligible as it takes only up to 6.7\%.\\ Hence either the polynomial arithmetics and the hash function $MGF-1$ are good candidates to be our consumption reference for the performance analysis. We decided to work on the mask generating function.\\
+ 	After having pointed out which function was the most consuming one \footnote{Remember that the goal is to implement such algorithm on a small controller , hence power consumption is critical and should be optimised.} , we could start with the implementation and optimisation of the $MGF-1$ function in $C$ according to the description of J. Schanck \cite{schanck_practical_2015}. 
 
 \begin{figure}[h]
   \includegraphics[width=\textwidth]{img/mgf1-description.png}
@@ -30,28 +32,29 @@ The table \ref{tab:cost-breakdown} shows that the hash function takes up to 15.9
   \label{fig:mgf-1}
 \end{figure}
 
-The Figure \ref{fig:mgf-1} shows the description of the algorithm MGF-TP-1 provided by J. Schanck \cite{schanck_practical_2015}. It describes the algorithm from a mathematical point of view. 
+The Figure \ref{fig:mgf-1} shows the description of the algorithm MGF-TP-1 provided by J. Schanck \cite{schanck_practical_2015}. It describes the algorithm from a pure mathematical point of view. 
 
 The first part of the algorithm (line 1 to 4) calls a hash-function multiple times with different inputs and concatenates the outputs in a $buffer$ to increase the size of the input $seed$.
 
-In the second part (line 5 to 12), it finds a polynomial representation of degree 5 for each bytes of the $buffer$ if the byte is bigger than $3^5$. Else, the byte is dropped to guarantee a uniform distribution of the output. In the description, the polynomial is then formatted to be added to another buffer called $v$.
+The second part (line 5 to 12), is used to find a polynomial representation of degree 5 for each bytes of the $buffer$ if the byte is bigger than $3^5$. Else, the byte is dropped to guarantee a uniform distribution of the output. In the description, the polynomial is then formatted to be added to another buffer called $v$.
 
 In the last part, the buffer $v$ is truncated to the $N$ coefficients.
 
-The goal is to implement in a version of the algorithm that will run on an 8-bit AVR Micro-controller. The chosen programming language is C as the code is portable, unlike assembly, and easier to write compare to assembly. Moreover, C allows the programmer to manipulate the memory directly and in efficient way. The performance are typically better with C than other programming languages that require virtual machines like Java. 
+The goal is to implement a version of the algorithm that will run on an 8-bit AVR Micro-controller. The chosen programming language is C as the code is portable and easier to write compare to assembly. Moreover, C allows the programmer to manipulate the memory directly and in efficient way. The performance are typically better with C than other programming languages that require virtual machines like Java. 
 % TODO: add that C is used as programming language of the rest of the project and for the reference implementation.
 The challenge is to translate this mathematical description of the algorithm into an optimised running version of the algorithm written in C.
 
 
 As the implementation follows the mathematical description, only the optimisation are described in this section.
-The first optimisation is to calculate only the necessary polynomial representations instead of calculating all of them and truncate the result to the first ones. This reduces the computation time, as less computations are necessary. It also reduces the memory usage as it does not store all the polynomial representations. In practice, we don't calculate the polynomial representation of every bytes in the $buffer$ bigger than $3^5$, but only for the $N$ first bytes in the $buffer$ bigger than $3^5$. This implies not calculating $v$ and not performing the modulo operation on $v$. 
-The second optimisation is to remove the formatting of line 8. In fact, this formatting is only necessary to compute a correct $v$, which is not required according to the first optimisation.
+The first optimisation is to calculate only the necessary polynomial representations instead of calculating all of them and truncate the result to the first ones. This reduces the computation time, as less computations are necessary. It also reduces the memory usage as it does not store all the polynomial representations.\\ In practice, we don't calculate the polynomial representation of every bytes in the $buffer$ bigger than $3^5$, but only for the $N$ first bytes in the $buffer$ bigger than $3^5$. This implies not calculating $v$ and not performing the modulo operation on $v$.\\ 
+The second optimisation has been to remove the formatting of line 8. In fact, this formatting is only necessary to compute a correct $v$ %TODO what does 'a correct v means?
+, which is not required according to the first optimisation.
 Moreover, certain memory slot are reused to store different variables to limit the memory usage with the help of pointers in C.
-Finally, the compiled assembly code is optimised by Dr. Groszsch\"adl.
+Finally, the compiled assembly code has been optimised by Dr. Groszsch\"adl.
 
 
-This function is implemented following a Test-driven development methodology. Thanks to the already existing implementation of NTRUOpenSourceProject \cite{noauthor_open_2018}, it is possible to compute the output of predefined inputs and therefore to create test cases. The NTRUOpenSourceProject provides a sample execution of the complete NTRU algorithm. However, the NTRUOpenSourceProject does not provide the MGF-1 algorithm as a single C function which makes it harder to determine what correspond to the MGF-1 algorithm, what correspond to its input and output. Using the C debugger on the NTRUOpenSourceProject implementation, it is possible to retrieve the inputs and output of a correct execution of MGF-1 to create the following test case.
-
+This function is implemented following a Test-driven development methodology. Thanks to the already existing implementation of NTRUOpenSourceProject \cite{noauthor_open_2018}, it has been possible to compute the output with the predefined inputs and therefore to create test cases.\\ The NTRUOpenSourceProject provides a sample execution of the complete NTRU algorithm. However, the NTRUOpenSourceProject does not provide the MGF-1 algorithm as a single C function which makes it harder to determine what correspond to the MGF-1 algorithm, its input and output.\\ Using the C debugger on the NTRUOpenSourceProject implementation, it is possible to retrieve the inputs and output of a correct execution of MGF-1 to create the following test case.
+\newpage
 \begin{lstlisting}[style=base,frame=single,mathescape=true]
 {Test case for MGF-1 implementation}
 
@@ -78,7 +81,7 @@ mask = {0x00, 0x00, 0x00, 0x01, 0x02, 0x01, 0x00, 0x00,
 	0x01, 0x01, 0x00, 0x01}
 \end{lstlisting}
 
-This test case is used to determine whether our implementation is correct or not. The implementation and the C version of the test case can be found on the repository of the project \cite{simonetto_ntru_2018}.
+This test case has been used to determine whether our implementation is correct or not. The implementation and the C version of the test case can be found on the repository of the project \cite{simonetto_ntru_2018}.
 
 
 
