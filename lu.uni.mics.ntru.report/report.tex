@@ -4,10 +4,23 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{adjustbox}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{lmodern}
+
+
+\lstdefinestyle{base}{
+  emptylines=1,
+  breaklines=true,
+  basicstyle=\ttfamily,
+  moredelim=**[is][\color{red}]{@}{@},
+  morekeywords={INPUT, OUTPUT}
+}
+
 
 \begin{document}
 \title{Performance Evaluation of the NTRU Encryption Scheme\\ on an 8-bit AVR 
-Microcontroller}
+Micro-controller}
 \maketitle
 
 % TITLE

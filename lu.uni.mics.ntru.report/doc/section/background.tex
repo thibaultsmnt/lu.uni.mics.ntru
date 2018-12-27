@@ -45,7 +45,6 @@ To recover the original message $M$ the person will have to go through the follo
 	\item Compute $m=fp*b$ mod $p$.
 	\item Output $m$ is the decrypted polynomial representing the message $M$.
 \end{enumerate}
-\\
 
 This group of algorithm has couple of advantages over the well known RSA algorithm. First, the main operation of NTRU relies on the multiplication of polynomials with constant degree ($e.g.$ 438 for 128 bit security) on small integer. Which in turns is much less costly that operation for the same level of security using RSA algorithm that relies on modular exponentiation (for 128 bit security level, operation performed on 3072-bit integers). Second, NTRU is more robust with regards to quantum computing than RSA.\\
 Furthermore RSA operation are very costly in terms of resource consumption which make it very unlikely to be implemented on resource limited hardware. Thanks to the possibility of efficiency increase of the NTRU algorithm, an implementation of such high security scheme on small and resource critical devices can be considered.
