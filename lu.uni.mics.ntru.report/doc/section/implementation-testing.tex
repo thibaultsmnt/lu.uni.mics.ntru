@@ -1,5 +1,7 @@
 \section{Implementation \& Testing}
 
+This section presents the motivations to implement the MGF-1 function, its implementation and the testing of the the implementation.
+
 \begin{table}[h]
 \centering
 
@@ -40,7 +42,15 @@ The goal is to implement in a version of the algorithm that will run on an 8-bit
 % TODO: add that C is used as programming language of the rest of the project and for the reference implementation.
 The challenge is to translate this mathematical description of the algorithm into an optimised running version of the algorithm written in C.
 
-This function is implemented following a Test-driven development methodology. Thanks to the already existing implementation of NTRUOpenSourceProject \cite{noauthor_open_2018}, it is possible to compute the output of a predefined output and therefore to create test cases. The NTRUOpenSourceProject provides a sample execution of the complete NTRU algorithm. Hovewer, the NTRUOpenSourceProject does not provide the MGF-1 algorithm as a single C function which makes it harder to determine what correspond to the MGF-1 algorithm, what correspond to its input and output. Using the C debugger on the NTRUOpenSourceProject implementation, it is possible to retrieve the inputs and output of a correct execution of MGF-1 to create the following test case.
+
+As the implementation follows the mathematical description, only the optimisation are described in this section.
+The first optimisation is to calculate only the necessary polynomial representations instead of calculating all of them and truncate the result to the first ones. This reduces the computation time, as less computations are necessary. It also reduces the memory usage as it does not store all the polynomial representations. In practice, we don't calculate the polynomial representation of every bytes in the $buffer$ bigger than $3^5$, but only for the $N$ first bytes in the $buffer$ bigger than $3^5$. This implies not calculating $v$ and not performing the modulo operation on $v$. 
+The second optimisation is to remove the formatting of line 8. In fact, this formatting is only necessary to compute a correct $v$, which is not required according to the first optimisation.
+Moreover, certain memory slot are reused to store different variables to limit the memory usage with the help of pointers in C.
+Finally, the compiled assembly code is optimised by Dr. Groszsch\"adl.
+
+
+This function is implemented following a Test-driven development methodology. Thanks to the already existing implementation of NTRUOpenSourceProject \cite{noauthor_open_2018}, it is possible to compute the output of predefined inputs and therefore to create test cases. The NTRUOpenSourceProject provides a sample execution of the complete NTRU algorithm. However, the NTRUOpenSourceProject does not provide the MGF-1 algorithm as a single C function which makes it harder to determine what correspond to the MGF-1 algorithm, what correspond to its input and output. Using the C debugger on the NTRUOpenSourceProject implementation, it is possible to retrieve the inputs and output of a correct execution of MGF-1 to create the following test case.
 
 \begin{lstlisting}[style=base,frame=single,mathescape=true]
 {Test case for MGF-1 implementation}
@@ -68,19 +78,7 @@ mask = {0x00, 0x00, 0x00, 0x01, 0x02, 0x01, 0x00, 0x00,
 	0x01, 0x01, 0x00, 0x01}
 \end{lstlisting}
 
-This test case is used to determine whether our implementation is correct or not. The C version of the test case can be found on the repository of the project. %TODO: add reference
-
-
-
-%Say that implementation uses SHa 256 as hash function provided by supervisor %
-
-The first optimisation is to calculate only the necessary polynomial representations instead of calculating all of them and truncate the result to the first ones. This reduces the computation time, as less computations are necessary. It also reduces the memory usage as it does not store all the polynomial representations. In practice, we don't calculate the polynomial representation of every bytes in the $buffer$ bigger than $3^5$, but only for the $N$ first bytes in the $buffer$ bigger than $3^5$. This implies not calculating $v$ and not performing the modulo operation on $v$. 
-
-The second optimisation is to remove the formatting of line 8. In fact, this formatting is only necessary to compute a correct $v$, which is not required according to the first optimisation.
-
-Moreover, certain memory slot are reused to store different variables to limit the memory usage with the help of pointers in C.
-
-Finally, the compiled assembly code is optimised by Dr. Groszsch\"adl. Hello
+This test case is used to determine whether our implementation is correct or not. The implementation and the C version of the test case can be found on the repository of the project \cite{simonetto_ntru_2018}.
 
 
 
