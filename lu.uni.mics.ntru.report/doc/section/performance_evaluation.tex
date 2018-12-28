@@ -1,0 +1,68 @@
+\section{Performance evaluation}
+
+This section presents the performance evaluation of the implementation described in Section \ref{sec:implementation_testing}.
+\newline
+
+The performance measurement are using the parameters set \textit{ees443ep1} from the report provided by the NTRUOpenSourceProject \cite{ntru_open_source_project_efficient_2015}.
+
+\begin{lstlisting}[style=base,frame=single,mathescape=true]
+{Parameter set ees443ep1}
+
+N: 443
+minCallsMask: 5
+
+Hash function: SHA-256 (MGF)
+
+\end{lstlisting}
+
+The performance is measured on a amd64 CPU (Table \ref{tab:cost-breakdown-amd64}) and on the 8-bit ARV micro-controller simulator (Table \ref{tab:cost-breakdown-8bit}).
+
+\begin{table}[h]
+\centering
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lccccccccccc}
+\hline
+	Function  & Total &&  \multicolumn{2}{c@{\hskip 0.2in}}{Polynomial arithmetics} && \multicolumn{2}{c}{Hash functions} && \multicolumn{2}{c}{Rest}\\\cline{4-5}\cline{7-8}\cline{10-11}
+ 
+  & &&$k$ cycles & Percentage && $k$ cycles & Percentage && $k$ cycles & Percentage \\
+ \hline
+Key genration  & 5424 && 5082 & 93.6\% && 247 & 4.5\% && 95 & 1.7\% \\
+Encryption & 1008 && 780 & 77.4\% && 160 & 15.9\% && 68 & 6.7\% \\
+Decryption & 1757 && 1560 & 88.8\% && 104 &5.9\% && 93 & 5.3\%  \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\caption{A Cost Breakdown \cite{dai_optimizing_2018} of Reference Code of NTRUEncrypt \cite{noauthor_open_2018} on a amd64 CPU}
+\label{tab:cost-breakdown-amd64}
+\end{table}
+
+\begin{table}[h]
+\centering
+
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{lccccccccccc}
+\hline
+	Function  & Total &&  \multicolumn{2}{c@{\hskip 0.2in}}{Polynomial arithmetics} && \multicolumn{2}{c}{Hash functions} && \multicolumn{2}{c}{Rest}\\\cline{4-5}\cline{7-8}\cline{10-11}
+ 
+  & &&$k$ cycles & Percentage && $k$ cycles & Percentage && $k$ cycles & Percentage \\
+ \hline
+
+Encryption & 3990 && 2800 & 70.2\% && 1190 & 29.8\% && NA & 0.0\% \\
+Decryption & 6850 && 5660 & 82.6\% && 1190 & 17.4\% && NA & 0.0\%  \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\caption{A Cost Breakdown of NTRU implementation for 8-bit ARV Micro-controller \cite{simonetto_ntru_2018} on an 8-bit ATmega128 processor simulator}
+\label{tab:cost-breakdown-8bit}
+\end{table}
+
+First, we notice that the decryption takes twice more clock cycles for the decryption than the encryption. In fact, the decryption requires two polynomial multiplications as the encryption requires only one. As a result, the proportion of cycle dedicated to hash function is twice more important for the encryption than for the decryption.
+
+Moreover, the hash function takes more cycles on the 8-bit controller than on the amd64 processor. The 8-bit AVR micro-controllers are indeed relatively slow to execute SHA-256 hash function mainly because rotation are slow on this devices.
+
+Finally, the 8-bit ARV micro-controller having a clock speed of 8MHz, the time necessary for:
+\begin{itemize}
+	\item Encryption is $t_e = \frac{\#cycle_e}{clock\_speed} = \frac{3990}{8\cdot10^6} = 4.9875 \cdot 10^{-4}s$
+	\item Decryption is $t_d = \frac{\#cycle_d}{clock\_speed} = \frac{6850}{8\cdot10^6} = 8.5625 \cdot 10^{-4}s$
+\end{itemize}
