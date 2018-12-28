@@ -1,7 +1,7 @@
 \section{Implementation \& Testing}
 
 This section presents the motivations to implement the MGF-1 function, its implementation and the testing of the implementation.\\\\ 
-As described in the background section the part that we have worked on concerns the utility function of mask generating function. Again this function is used to apply some padding during the encryption to improve security.
+As described in the background section, the part that we have worked on concerns the utility function of mask generating function. Again this function is used to apply some padding during the encryption to improve security.
 \begin{table}[h]
 \centering
 
@@ -22,9 +22,10 @@ Decryption & 1757 && 1560 & 88.8\% & & 104 &5.9\% && 93 & 5.3\%  \\
 \label{tab:cost-breakdown}
 \end{table}
 
-The table \ref{tab:cost-breakdown} described the clock cycles needed for different part of the algorithm depending on the operation used (Polynomial arithmetics, hash function, others). \\
- It clearly emphasis the fact that the hash function takes up to 15.9\% of the total computation cycle number. It is the second most expensive operation after the polynomial arithmetics (that takes up to 77.4\% of the total cycle number). Plus, the rest is negligible as it takes only up to 6.7\%.\\ Hence either the polynomial arithmetics and the hash function $MGF-1$ are good candidates to be our consumption reference for the performance analysis. We decided to work on the mask generating function.\\
- 	After having pointed out which function was the most consuming one \footnote{Remember that the goal is to implement such algorithm on a small controller , hence power consumption is critical and should be optimised.} , we could start with the implementation and optimisation of the $MGF-1$ function in $C$ according to the description of J. Schanck \cite{schanck_practical_2015}. 
+The table \ref{tab:cost-breakdown} described the clock cycles needed for different part of the algorithm depending on the operation type used (polynomial arithmetics, hash function, others). \\
+%Not sure about formulation
+ It clearly emphasis the fact that the hash function takes up to 15.9\% of the total computation cycle number. It is the second most expensive operation after the polynomial arithmetics (that takes up to 77.4\% of the total cycle number). Plus, the rest is negligible as it takes only up to 6.7\%.\\ Hence the part of the algorithm using polynomial arithmetics and hash functions are good candidates to be optimised. We decided to work on the mask generating function MGF-1 that uses hash functions.\\
+ 	 The implementation and optimisation of the $MGF-1$ function in $C$ is realised according to the description of J. Schanck \cite{schanck_practical_2015}. 
 
 \begin{figure}[h]
   \includegraphics[width=\textwidth]{img/mgf1-description.png}
@@ -34,21 +35,21 @@ The table \ref{tab:cost-breakdown} described the clock cycles needed for differe
 
 The Figure \ref{fig:mgf-1} shows the description of the algorithm MGF-TP-1 provided by J. Schanck \cite{schanck_practical_2015}. It describes the algorithm from a pure mathematical point of view. 
 
-The first part of the algorithm (line 1 to 4) calls a hash-function multiple times with different inputs and concatenates the outputs in a $buffer$ to increase the size of the input $seed$.
+The inputs are a random generated number called $seed$, the number of call to the hash function $minCallsMask$, and the number of coefficients the function should provide as output $N$. The output is a $mask \in \{-1,0,1\}^N$ of $N$ coefficients.
+
+The first part of the algorithm (line 1 to 4) calls a hash-function  $minCallsMask + 1$ times with different inputs and concatenates the outputs in a $buffer$ to increase the size of the input $seed$.
 
 The second part (line 5 to 12), is used to find a polynomial representation of degree 5 for each bytes of the $buffer$ if the byte is bigger than $3^5$. Else, the byte is dropped to guarantee a uniform distribution of the output. In the description, the polynomial is then formatted to be added to another buffer called $v$.
 
-In the last part, the buffer $v$ is truncated to the $N$ coefficients.
+In the last part, the buffer $v$ is truncated to the first $N$ coefficients.
 
-The goal is to implement a version of the algorithm that will run on an 8-bit AVR Micro-controller. The chosen programming language is C as the code is portable and easier to write compare to assembly. Moreover, C allows the programmer to manipulate the memory directly and in efficient way. The performance are typically better with C than other programming languages that require virtual machines like Java. 
-% TODO: add that C is used as programming language of the rest of the project and for the reference implementation.
+The goal is to implement a version of the algorithm that will run on an 8-bit AVR Micro-controller. The chosen programming language is C as the code is portable and easier to write compare to assembly. Moreover, C allows the programmer to manipulate the memory directly and in efficient way. The performance are typically better with C than other programming languages that require virtual machines like Java. Plus, the implementation must be compatible with the other parts of the NTRU algorithm for micro-controller already implemented in C.
 The challenge is to translate this mathematical description of the algorithm into an optimised running version of the algorithm written in C.
 
 
 As the implementation follows the mathematical description, only the optimisation are described in this section.
 The first optimisation is to calculate only the necessary polynomial representations instead of calculating all of them and truncate the result to the first ones. This reduces the computation time, as less computations are necessary. It also reduces the memory usage as it does not store all the polynomial representations.\\ In practice, we don't calculate the polynomial representation of every bytes in the $buffer$ bigger than $3^5$, but only for the $N$ first bytes in the $buffer$ bigger than $3^5$. This implies not calculating $v$ and not performing the modulo operation on $v$.\\ 
-The second optimisation has been to remove the formatting of line 8. In fact, this formatting is only necessary to compute a correct $v$ %TODO what does 'a correct v means?
-, which is not required according to the first optimisation.
+The second optimisation has been to remove the formatting of line 8. In fact, this formatting is only necessary to compute $v$, which is not required according to the first optimisation.
 Moreover, certain memory slot are reused to store different variables to limit the memory usage with the help of pointers in C.
 Finally, the compiled assembly code has been optimised by Dr. Groszsch\"adl.
 
