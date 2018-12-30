@@ -4,7 +4,7 @@
 This sections presents the concepts, methodologies and technologies used to produce the implementation and the performance evaluation.
 
 \subsection{NTRU}
-NTRU algorithm which is the abbreviation for $N-th$ degree truncated polynomial ring, is the group of lattice based public key encryption schemes.\\
+NTRU algorithm which is the abbreviation for $N-th$ degree truncated polynomial ring, is the group of lattice based public key encryption schemes \cite{hoffstein_ntru:_2006} . \\
 Such algorithm relies on the hardness of the \textit{Closest Vector Problem}\cite{micciancio_closest_2003} which in turns is a generalisation of the \textit{Shortest Vector Problem}.
 \subsubsection{Algebraic structure and operation}
 NTRU crypto-system operation is using polynomial of degree $N-1$ with Integer coefficient. Elements are on the form $$F = f_0+f_1X+f_2X^2+... +f_{N-1}X^{N-1} $$  We will denote by $R$ the set of all those polynomials.\\
