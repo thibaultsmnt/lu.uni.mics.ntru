@@ -39,9 +39,7 @@ The Figure \ref{fig:mgf-1} shows the description of the algorithm MGF-TP-1 provi
 The inputs are a random generated number called $seed$, the number of call to the hash function $minCallsMask$, and the number of coefficients the function should provide as output $N$. The output is a $mask \in \{-1,0,1\}^N$ of $N$ coefficients.
 
 The first part of the algorithm (line 1 to 4) calls a hash-function  $minCallsMask + 1$ times with different inputs and concatenates the outputs in a $buffer$ to increase the size of the input $seed$.
-
 The second part (line 5 to 12), is used to find a polynomial representation of degree 5 for each bytes of the $buffer$ if the byte is bigger than $3^5$. Else, the byte is dropped to guarantee a uniform distribution of the output. In the description, the polynomial is then formatted to be added to another buffer called $v$.
-
 In the last part, the buffer $v$ is truncated to the first $N$ coefficients.
 
 The goal is to implement a version of the algorithm that will run on an 8-bit AVR Micro-controller. The chosen programming language is C as the code is portable and easier to write compare to assembly. Moreover, C allows the programmer to manipulate the memory directly and in efficient way. The performance are typically better with C than other programming languages that require virtual machines like Java. Plus, the implementation must be compatible with the other parts of the NTRU algorithm for micro-controller already implemented in C.
@@ -49,13 +47,13 @@ The challenge is to translate this mathematical description of the algorithm int
 
 
 As the implementation follows the mathematical description, only the optimisation are described in this section.
-The first optimisation is to calculate only the necessary polynomial representations instead of calculating all of them and truncate the result to the first ones. This reduces the computation time, as less computations are necessary. It also reduces the memory usage as it does not store all the polynomial representations.\\ In practice, we don't calculate the polynomial representation of every bytes in the $buffer$ bigger than $3^5$, but only for the $N$ first bytes in the $buffer$ bigger than $3^5$. This implies not calculating $v$ and not performing the modulo operation on $v$.\\ 
+The first optimisation is to calculate only the necessary polynomial representations instead of calculating all of them and truncate the result to the first ones. This reduces the computation time, as less computations are necessary. It also reduces the memory usage as it does not store all the polynomial representations. In practice, we don't calculate the polynomial representation of every bytes in the $buffer$ bigger than $3^5$, but only for the $N$ first bytes in the $buffer$ bigger than $3^5$. This implies not calculating $v$ and not performing the modulo operation on $v$.
 The second optimisation has been to remove the formatting of line 8. In fact, this formatting is only necessary to compute $v$, which is not required according to the first optimisation.
 Moreover, certain memory slot are reused to store different variables to limit the memory usage with the help of pointers in C.
 Finally, the compiled assembly code has been optimised by Dr. Groszsch\"adl.
 
 
-This function is implemented following a Test-driven development methodology. Thanks to the already existing implementation of NTRUOpenSourceProject \cite{noauthor_open_2018}, it has been possible to compute the output with the predefined inputs and therefore to create test cases.\\ The NTRUOpenSourceProject provides a sample execution of the complete NTRU algorithm. However, the NTRUOpenSourceProject does not provide the MGF-1 algorithm as a single C function which makes it harder to determine what correspond to the MGF-1 algorithm, its input and output.\\ Using the C debugger on the NTRUOpenSourceProject implementation, it is possible to retrieve the inputs and output of a correct execution of MGF-1 to create the following test case.
+This function is implemented following a Test-driven development methodology. Thanks to the already existing implementation of NTRUOpenSourceProject \cite{noauthor_open_2018}, it has been possible to compute the output with the predefined inputs and therefore to create test cases. The NTRUOpenSourceProject provides a sample execution of the complete NTRU algorithm. However, the NTRUOpenSourceProject does not provide the MGF-1 algorithm as a single C function which makes it harder to determine what correspond to the MGF-1 algorithm, its input and output. Using the C debugger on the NTRUOpenSourceProject implementation, it is possible to retrieve the inputs and output of a correct execution of MGF-1 to create the following test case.
 \newpage
 \begin{lstlisting}[style=base,frame=single,mathescape=true]
 {Test case for MGF-1 implementation}
